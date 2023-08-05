@@ -1,0 +1,52 @@
+const createTrackCard = (track) => {
+    const trackCard = document.createElement('div');
+    trackCard.className = 'track-card';
+  
+    const imageUrl = track?.track?.album?.images?.length > 0
+        ? track.track.album.images[0].url
+        : 'placeholder.jpg';
+  
+    const artists = track?.track?.artists?.items.map((artist) => artist.profile.name).join(', ') || 'Unknown Artist';
+  
+    trackCard.innerHTML = `
+        <img src="${imageUrl}" alt="${track?.track?.name || 'Unknown Track'}">
+        <h3>${track?.track?.name || 'Unknown Track'}</h3>
+        <p>Artists: ${artists}</p>
+        <p>Album: ${track?.track?.album?.name || 'Unknown Album'}</p>
+        <a href="${track?.track?.uri || '#'}" target="_blank">Listen on Spotify</a>
+    `;
+    return trackCard;
+  };
+  
+  const displayTracks = (tracksData) => {
+    const trackContainer = document.querySelector('.tracks');
+  
+    tracksData.forEach((track) => {
+      const trackCard = createTrackCard(track);
+      trackContainer.appendChild(trackCard);
+    });
+  };
+  
+  const fetchSpotifyData = async () => {
+    const url = 'https://spotify23.p.rapidapi.com/album_tracks/?id=3IBcauSj5M2A6lTeffJzdv&offset=0&limit=300';
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': '0e86196495msh8ee08517b899577p1093fajsnbf3eae91bef4',
+        'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
+      }
+    };
+  
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      const tracksData = data?.data?.album?.tracks?.items || [];
+      displayTracks(tracksData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  // Call the function to fetch and display the tracks
+  fetchSpotifyData();
+  
